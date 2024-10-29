@@ -2,112 +2,149 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Path Drawing Map</title>
-
-  <!-- Leaflet CSS -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
-
-  <!-- Custom CSS -->
-  <link rel="stylesheet" href="style.css">
-
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="/favicon.png">
-
-  <!-- Meta tags for SEO and social sharing -->
-  <meta name="description" content="Create and save walking paths with this interactive map tool">
-  <meta name="keywords" content="map, walking, path, route planner, navigation">
-  <meta name="author" content="Path Drawing App">
-
-  <!-- Open Graph tags for social sharing -->
-  <meta property="og:title" content="Path Drawing Map">
-  <meta property="og:description" content="Create and save walking paths with this interactive map tool">
-  <meta property="og:type" content="website">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PathMapper</title>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-  <!-- Main container -->
-  <div class="container">
-    <!-- Header section -->
-    <div class="header">
-      <div class="title-group">
-        <h1 class="title">Walking Path Creator</h1>
-        <p class="subtitle">Search locations or click points to create your path</p>
-      </div>
-      <div class="search-container">
-        <input type="text" id="search" class="search-input" placeholder="Search location..."
-          aria-label="Search for a location">
-        <div class="search-results" id="searchResults"></div>
-      </div>
+    <!-- Header -->
+    <header class="app-header">
+        <div class="header-container">
+            <h1 id="pathmapper" class="logo">PathMapper</h1>
+            <div class="search-wrapper">
+                <input type="search" id="search" class="search-input" placeholder="Search locations..."
+                    aria-label="Search locations">
+                <div id="searchResults" class="search-results hidden"></div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content" role="main">
+        <!-- Map Container -->
+        <div id="map" class="map-container"></div>
+
+        <!-- Drawing Toolbar -->
+        <div class="leaflet-draw-toolbar">
+            <button id="draw" class="draw-btn" title="Draw">✏️</button>
+            <button id="finishPath" class="draw-btn hidden" title="Finish">✓</button>
+            <button id="deleteLastPoint" class="draw-btn hidden" title="Delete last point">⌫</button>
+            <button id="cancelPath" class="draw-btn hidden" title="Cancel">✕</button>
+        </div>
+
+        <!-- Stats Panel -->
+        <div class="stats-panel">
+            <div class="stats-grid">
+                <div class="stats-card">
+                    <span class="stats-label">Distance</span>
+                    <div class="stats-value">
+                        <span id="distance">0.00</span> km
+                    </div>
+                </div>
+                <div class="stats-card">
+                    <span class="stats-label">Est. Time</span>
+                    <div class="stats-value">
+                        <span id="time">0</span> min
+                    </div>
+                </div>
+                <div class="stats-card">
+                    <span class="stats-label">Points</span>
+                    <div class="stats-value">
+                        <span id="points">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Control Panel -->
+        <div class="control-panel">
+            <button id="locate" class="control-button" title="Find my location">📍</button>
+            <button id="editPath" class="control-button" title="Edit path">✂️</button>
+            <button id="savePath" class="control-button" title="Save path">💾</button>
+            <button id="clearPath" class="control-button" title="Clear path">🗑️</button>
+            <button id="toggleSavedPaths" class="control-button" title="Saved paths">📂</button>
+            <button id="infoButton" class="control-button" title="Information">ℹ️</button>
+        </div>
+
+        <!-- Success Toast -->
+        <div id="successToast" class="toast hidden"></div>
+    </main>
+
+    <!-- Save Path Modal -->
+    <div id="saveModal" class="modal hidden">
+        <div class="modal-content">
+            <h2 class="modal-title">Save Path</h2>
+            <div class="modal-body">
+                <div class="input-group">
+                    <label for="pathName" class="input-label">Path Name</label>
+                    <input type="text" id="pathName" class="modal-input" placeholder="Enter a name for your path">
+                </div>
+                <div class="path-preview">
+                    <div class="preview-stat">
+                        <span class="preview-label">Distance:</span>
+                        <span class="preview-value"><span id="previewDistance">0.00</span> km</span>
+                    </div>
+                    <div class="preview-stat">
+                        <span class="preview-label">Est. Time:</span>
+                        <span class="preview-value"><span id="previewTime">0</span> min</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button id="cancelSave" class="btn btn-secondary">Cancel</button>
+                <button id="confirmSave" class="btn btn-primary">Save Path</button>
+            </div>
+        </div>
     </div>
 
-    <!-- Map container -->
-    <div id="map" aria-label="Interactive map for drawing paths"></div>
-
-    <!-- Control buttons -->
-    <div class="controls">
-      <button id="locate" aria-label="Find my location">
-        📍 My Location
-      </button>
-      <button id="draw" aria-label="Toggle drawing mode">
-        ✏️ Draw Path
-      </button>
-      <button id="edit" aria-label="Toggle edit mode">
-        ✂️ Edit Path
-      </button>
-      <button id="save" aria-label="Save current path">
-        💾 Save Path
-      </button>
-      <button id="clear" aria-label="Clear current path">
-        🗑️ Clear
-      </button>
+    <!-- Saved Paths Modal -->
+    <div id="savedPathsModal" class="modal hidden">
+        <div class="modal-content">
+            <h2 class="modal-title">Saved Paths</h2>
+            <div id="pathsList" class="saved-paths-list">
+                <!-- Paths will be listed here -->
+            </div>
+            <div class="modal-actions">
+                <button id="closeSavedPaths" class="btn btn-primary">Close</button>
+            </div>
+        </div>
     </div>
 
-    <!-- Information panel -->
-    <div class="info">
-      <div class="info-row">
-        Distance: <span id="distance">0.00</span> km
-      </div>
-      <div class="info-row">
-        Est. Time: <span id="time">0</span> min
-      </div>
-      <div class="info-row">
-        Points: <span id="points">0</span>
-      </div>
+    <!-- Info Modal -->
+    <div id="infoModal" class="modal hidden">
+        <div class="modal-content">
+            <h2 class="modal-title">How to Use</h2>
+            <div class="info-content">
+                <ul class="info-list">
+                    <li><span class="icon">📍</span> Use location button to find your position</li>
+                    <li><span class="icon">✏️</span> Click draw and create your path on the map</li>
+                    <li><span class="icon">✂️</span> Edit existing paths by moving points</li>
+                    <li><span class="icon">💾</span> Save your paths with custom names</li>
+                    <li><span class="icon">🗑️</span> Clear the current path from map</li>
+                    <li><span class="icon">📂</span> Access your saved paths</li>
+                </ul>
+            </div>
+            <div class="modal-actions">
+                <button id="closeInfo" class="btn btn-primary">Got it</button>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <!-- Save modal -->
-  <div class="overlay" id="overlay"></div>
-  <div class="save-modal" id="saveModal" aria-labelledby="modalTitle">
-    <h2 class="modal-title" id="modalTitle">Save Path</h2>
-    <input type="text" id="pathName" class="modal-input" placeholder="Enter path name" aria-label="Path name">
-    <div class="modal-buttons">
-      <button id="cancelSave">Cancel</button>
-      <button id="confirmSave">Save</button>
-    </div>
-  </div>
+    <!-- Overlay -->
+    <div id="overlay" class="overlay hidden"></div>
 
-  <!-- Saved paths list - Initially hidden -->
-  <div class="saved-paths" id="savedPaths" style="display: none;">
-    <h3>Saved Paths</h3>
-    <div id="pathsList"></div>
-  </div>
-
-  <!-- Scripts -->
-  <!-- Leaflet JS -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
-
-  <!-- Custom JS -->
-  <script src="script.js"></script>
-
-  <!-- Error handling -->
-  <script>
-    window.addEventListener('error', function (e) {
-      console.error('Global error:', e.message);
-    });
-  </script>
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+    <script src="script.js"></script>
 </body>
 
 </html>
