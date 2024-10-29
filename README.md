@@ -1,10 +1,11 @@
 # Walking Path Creator
 
 An interactive web application that allows users to create, edit, and save walking paths on a map. Built with HTML, CSS, JavaScript, and Leaflet.js.
-![image](https://github.com/user-attachments/assets/673094d6-97a3-47cf-93ce-a281fddd712e)
-
 https://bhanu9prakash.github.io/walking-path-creator/
 
+![image](https://github.com/user-attachments/assets/582b676c-1e1c-4b0e-9510-87343dea9d3c)
+
+---
 
 ## Features
 
