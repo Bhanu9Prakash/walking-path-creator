@@ -34,10 +34,11 @@
 
         <!-- Drawing Toolbar -->
         <div class="leaflet-draw-toolbar">
-            <button id="draw" class="draw-btn" title="Draw">✏️</button>
-            <button id="finishPath" class="draw-btn hidden" title="Finish">✓</button>
-            <button id="deleteLastPoint" class="draw-btn hidden" title="Delete last point">⌫</button>
-            <button id="cancelPath" class="draw-btn hidden" title="Cancel">✕</button>
+            <button id="draw" class="draw-btn" title="Draw" aria-label="Draw">✏️</button>
+            <button id="finishPath" class="draw-btn hidden" title="Finish" aria-label="Finish">✓</button>
+            <button id="deleteLastPoint" class="draw-btn hidden" title="Delete last point"
+                aria-label="Delete last point">⌫</button>
+            <button id="cancelPath" class="draw-btn hidden" title="Cancel" aria-label="Cancel">✕</button>
         </div>
 
         <!-- Stats Panel -->
@@ -66,80 +67,84 @@
 
         <!-- Control Panel -->
         <div class="control-panel">
-            <button id="locate" class="control-button" title="Find my location">📍</button>
-            <button id="editPath" class="control-button" title="Edit path">✂️</button>
-            <button id="savePath" class="control-button" title="Save path">💾</button>
-            <button id="clearPath" class="control-button" title="Clear path">🗑️</button>
-            <button id="toggleSavedPaths" class="control-button" title="Saved paths">📂</button>
-            <button id="infoButton" class="control-button" title="Information">ℹ️</button>
+            <button id="locate" class="control-button" title="Find my location"
+                aria-label="Find my location">📍</button>
+            <button id="editPath" class="control-button" title="Edit path" aria-label="Edit path">✂️</button>
+            <button id="savePath" class="control-button" title="Save path" aria-label="Save path">💾</button>
+            <button id="clearPath" class="control-button" title="Clear path" aria-label="Clear path">🗑️</button>
+            <button id="toggleSavedPaths" class="control-button" title="Saved paths"
+                aria-label="Saved paths">📂</button>
+            <button id="infoButton" class="control-button" title="Information" aria-label="Information">ℹ️</button>
         </div>
 
         <!-- Success Toast -->
         <div id="successToast" class="toast hidden"></div>
+
+        <!-- Save Path Modal -->
+        <div id="saveModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="saveModalTitle">
+            <div class="modal-content">
+                <h2 class="modal-title" id="saveModalTitle">Save Path</h2>
+                <div class="modal-body">
+                    <div class="input-group">
+                        <label for="pathName" class="input-label">Path Name</label>
+                        <input type="text" id="pathName" class="modal-input" placeholder="Enter a name for your path"
+                            aria-required="true">
+                    </div>
+                    <div class="path-preview">
+                        <div class="preview-stat">
+                            <span class="preview-label">Distance:</span>
+                            <span class="preview-value"><span id="previewDistance">0.00</span> km</span>
+                        </div>
+                        <div class="preview-stat">
+                            <span class="preview-label">Est. Time:</span>
+                            <span class="preview-value"><span id="previewTime">0</span> min</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button id="cancelSave" class="btn btn-secondary">Cancel</button>
+                    <button id="confirmSave" class="btn btn-primary">Save Path</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Saved Paths Modal -->
+        <div id="savedPathsModal" class="modal hidden" role="dialog" aria-modal="true"
+            aria-labelledby="savedPathsModalTitle">
+            <div class="modal-content">
+                <h2 class="modal-title" id="savedPathsModalTitle">Saved Paths</h2>
+                <div id="pathsList" class="saved-paths-list">
+                    <!-- Paths will be listed here -->
+                </div>
+                <div class="modal-actions">
+                    <button id="closeSavedPaths" class="btn btn-primary">Close</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Modal -->
+        <div id="infoModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="infoModalTitle">
+            <div class="modal-content">
+                <h2 class="modal-title" id="infoModalTitle">How to Use</h2>
+                <div class="info-content">
+                    <ul class="info-list">
+                        <li><span class="icon">📍</span> Use the location button to find your position</li>
+                        <li><span class="icon">✏️</span> Click draw and create your path on the map</li>
+                        <li><span class="icon">✂️</span> Edit existing paths by moving points</li>
+                        <li><span class="icon">💾</span> Save your paths with custom names</li>
+                        <li><span class="icon">🗑️</span> Clear the current path from the map</li>
+                        <li><span class="icon">📂</span> Access your saved paths</li>
+                    </ul>
+                </div>
+                <div class="modal-actions">
+                    <button id="closeInfo" class="btn btn-primary">Got it</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Overlay -->
+        <div id="overlay" class="overlay hidden"></div>
     </main>
-
-    <!-- Save Path Modal -->
-    <div id="saveModal" class="modal hidden">
-        <div class="modal-content">
-            <h2 class="modal-title">Save Path</h2>
-            <div class="modal-body">
-                <div class="input-group">
-                    <label for="pathName" class="input-label">Path Name</label>
-                    <input type="text" id="pathName" class="modal-input" placeholder="Enter a name for your path">
-                </div>
-                <div class="path-preview">
-                    <div class="preview-stat">
-                        <span class="preview-label">Distance:</span>
-                        <span class="preview-value"><span id="previewDistance">0.00</span> km</span>
-                    </div>
-                    <div class="preview-stat">
-                        <span class="preview-label">Est. Time:</span>
-                        <span class="preview-value"><span id="previewTime">0</span> min</span>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-actions">
-                <button id="cancelSave" class="btn btn-secondary">Cancel</button>
-                <button id="confirmSave" class="btn btn-primary">Save Path</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Saved Paths Modal -->
-    <div id="savedPathsModal" class="modal hidden">
-        <div class="modal-content">
-            <h2 class="modal-title">Saved Paths</h2>
-            <div id="pathsList" class="saved-paths-list">
-                <!-- Paths will be listed here -->
-            </div>
-            <div class="modal-actions">
-                <button id="closeSavedPaths" class="btn btn-primary">Close</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Info Modal -->
-    <div id="infoModal" class="modal hidden">
-        <div class="modal-content">
-            <h2 class="modal-title">How to Use</h2>
-            <div class="info-content">
-                <ul class="info-list">
-                    <li><span class="icon">📍</span> Use location button to find your position</li>
-                    <li><span class="icon">✏️</span> Click draw and create your path on the map</li>
-                    <li><span class="icon">✂️</span> Edit existing paths by moving points</li>
-                    <li><span class="icon">💾</span> Save your paths with custom names</li>
-                    <li><span class="icon">🗑️</span> Clear the current path from map</li>
-                    <li><span class="icon">📂</span> Access your saved paths</li>
-                </ul>
-            </div>
-            <div class="modal-actions">
-                <button id="closeInfo" class="btn btn-primary">Got it</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Overlay -->
-    <div id="overlay" class="overlay hidden"></div>
 
     <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.js"></script>

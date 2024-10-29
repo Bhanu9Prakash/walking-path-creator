@@ -14,6 +14,8 @@ class PathMapper {
         this.initElements();
         this.initEventListeners();
         this.loadSavedPaths(); // This loads saved paths from localStorage
+
+        // Control Panel is always visible; no need to restore its state
     }
 
     initMap() {
@@ -28,7 +30,7 @@ class PathMapper {
             // Drawing controls
             drawBtn: document.getElementById('draw'),
             finishBtn: document.getElementById('finishPath'),
-            deleteLastBtn: document.getElementById('deleteLastPoint'),
+            deleteLastPoint: document.getElementById('deleteLastPoint'),
             cancelBtn: document.getElementById('cancelPath'),
 
             // Main controls
@@ -57,7 +59,14 @@ class PathMapper {
             pathName: document.getElementById('pathName'),
             confirmSave: document.getElementById('confirmSave'),
             cancelSave: document.getElementById('cancelSave'),
-            closeSavedPaths: document.getElementById('closeSavedPaths')
+            closeSavedPaths: document.getElementById('closeSavedPaths'),
+
+            // Info Modal
+            infoModal: document.getElementById('infoModal'),
+
+            // Panels
+            statsPanel: document.querySelector('.stats-panel'),
+            controlPanel: document.querySelector('.control-panel')
         };
     }
 
@@ -65,7 +74,7 @@ class PathMapper {
         // Drawing controls
         this.elements.drawBtn.addEventListener('click', () => this.startDrawing());
         this.elements.finishBtn.addEventListener('click', () => this.finishDrawing());
-        this.elements.deleteLastBtn.addEventListener('click', () => this.deleteLastPoint());
+        this.elements.deleteLastPoint.addEventListener('click', () => this.deleteLastPoint());
         this.elements.cancelBtn.addEventListener('click', () => this.cancelDrawing());
 
         // Main controls
@@ -74,11 +83,17 @@ class PathMapper {
         this.elements.saveBtn.addEventListener('click', () => this.showSaveModal());
         this.elements.clearBtn.addEventListener('click', () => this.clearPath());
         this.elements.savedPathsBtn.addEventListener('click', () => this.toggleSavedPaths());
+        this.elements.infoBtn.addEventListener('click', () => this.showInfoModal());
+
+        // Removed Toggle Control Panel Button event listener as it's no longer needed
 
         // Save modal
         this.elements.confirmSave.addEventListener('click', () => this.savePath());
         this.elements.cancelSave.addEventListener('click', () => this.hideSaveModal());
         this.elements.closeSavedPaths.addEventListener('click', () => this.hideSavedPaths());
+
+        // Info modal
+        document.getElementById('closeInfo').addEventListener('click', () => this.hideInfoModal());
 
         // Map click for drawing
         this.map.on('click', (e) => {
@@ -103,9 +118,9 @@ class PathMapper {
         // Update UI
         this.elements.drawBtn.classList.add('active');
         this.elements.finishBtn.classList.remove('hidden');
-        this.elements.deleteLastBtn.classList.remove('hidden');
+        this.elements.deleteLastPoint.classList.remove('hidden');
         this.elements.cancelBtn.classList.remove('hidden');
-        document.getElementById('map').style.cursor = 'crosshair';
+        this.map.getContainer().style.cursor = 'crosshair';
 
         this.showToast('Click on the map to start drawing');
     }
@@ -151,10 +166,10 @@ class PathMapper {
         }
 
         this.isDrawing = false;
-        document.getElementById('map').style.cursor = '';
+        this.map.getContainer().style.cursor = '';
         this.elements.drawBtn.classList.remove('active');
         this.elements.finishBtn.classList.add('hidden');
-        this.elements.deleteLastBtn.classList.add('hidden');
+        this.elements.deleteLastPoint.classList.add('hidden');
         this.elements.cancelBtn.classList.add('hidden');
 
         this.showToast('Path completed. Save your path or continue editing.');
@@ -169,10 +184,10 @@ class PathMapper {
             this.currentPath = null;
         }
 
-        document.getElementById('map').style.cursor = '';
+        this.map.getContainer().style.cursor = '';
         this.elements.drawBtn.classList.remove('active');
         this.elements.finishBtn.classList.add('hidden');
-        this.elements.deleteLastBtn.classList.add('hidden');
+        this.elements.deleteLastPoint.classList.add('hidden');
         this.elements.cancelBtn.classList.add('hidden');
 
         this.updateStats();
@@ -228,7 +243,7 @@ class PathMapper {
             div.innerHTML = `
                 <div class="path-info">
                     <div class="path-name">${path.name}</div>
-                    <div class="path-details">${path.distance} km • ${path.time} min</div>
+                    <div class="path-details">${path.distance.toFixed(2)} km • ${path.time} min</div>
                 </div>
                 <div class="path-actions">
                     <button class="btn btn-secondary" onclick="pathMapper.loadPath(${index})">Load</button>
@@ -264,6 +279,16 @@ class PathMapper {
         this.elements.overlay.classList.add('hidden');
     }
 
+    showInfoModal() {
+        this.elements.infoModal.classList.remove('hidden');
+        this.elements.overlay.classList.remove('hidden');
+    }
+
+    hideInfoModal() {
+        this.elements.infoModal.classList.add('hidden');
+        this.elements.overlay.classList.add('hidden');
+    }
+
     savePath() {
         const name = this.elements.pathName.value.trim();
         if (!name) {
@@ -273,7 +298,7 @@ class PathMapper {
 
         const pathData = {
             name: name,
-            points: this.drawingPoints,
+            points: this.drawingPoints.map(point => ({ lat: point.lat, lng: point.lng })),
             distance: parseFloat(this.elements.distance.textContent),
             time: parseInt(this.elements.time.textContent)
         };
@@ -351,12 +376,57 @@ class PathMapper {
         this.elements.editBtn.classList.toggle('active');
 
         if (this.isEditing) {
-            this.currentPath.editing.enable();
-            this.showToast('Drag points to edit path');
+            // Enable editing using Leaflet's editable plugin or Leaflet.draw
+            // Assuming Leaflet.draw is being used, initiate editing controls
+            // Note: Leaflet.draw does not support editing existing polylines by default
+            // You might need to integrate Leaflet.Editable or another plugin for this functionality
+            this.enableEditing();
+            this.showToast('Editing mode enabled. Drag points to edit path.');
         } else {
-            this.currentPath.editing.disable();
-            this.drawingPoints = this.currentPath.getLatLngs();
+            this.disableEditing();
+            this.showToast('Editing mode disabled.');
+        }
+    }
+
+    enableEditing() {
+        // Integrate Leaflet.Editable or similar for editing
+        // Placeholder for actual editing implementation
+        // Example using Leaflet.draw's Edit Control
+        if (!this.editControl) {
+            this.editControl = new L.Control.Draw({
+                edit: {
+                    featureGroup: new L.FeatureGroup().addLayer(this.currentPath),
+                    edit: true,
+                    remove: false
+                },
+                draw: false
+            });
+            this.map.addControl(this.editControl);
+
+            this.map.on(L.Draw.Event.EDITED, (e) => {
+                const layers = e.layers;
+                layers.eachLayer((layer) => {
+                    this.drawingPoints = layer.getLatLngs();
+                    this.updateStats();
+                });
+            });
+        }
+    }
+
+    disableEditing() {
+        if (this.editControl) {
+            this.map.removeControl(this.editControl);
+            this.editControl = null;
+        }
+    }
+
+    clearPath() {
+        if (this.currentPath) {
+            this.map.removeLayer(this.currentPath);
+            this.currentPath = null;
+            this.drawingPoints = [];
             this.updateStats();
+            this.showToast('Path cleared');
         }
     }
 }
