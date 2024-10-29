@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Path Drawing Map</title>
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="/favicon.png">
+
+  <!-- Meta tags for SEO and social sharing -->
+  <meta name="description" content="Create and save walking paths with this interactive map tool">
+  <meta name="keywords" content="map, walking, path, route planner, navigation">
+  <meta name="author" content="Path Drawing App">
+
+  <!-- Open Graph tags for social sharing -->
+  <meta property="og:title" content="Path Drawing Map">
+  <meta property="og:description" content="Create and save walking paths with this interactive map tool">
+  <meta property="og:type" content="website">
+</head>
+
+<body>
+  <!-- Main container -->
+  <div class="container">
+    <!-- Header section -->
+    <div class="header">
+      <div class="title-group">
+        <h1 class="title">Walking Path Creator</h1>
+        <p class="subtitle">Search locations or click points to create your path</p>
+      </div>
+      <div class="search-container">
+        <input type="text" id="search" class="search-input" placeholder="Search location..."
+          aria-label="Search for a location">
+        <div class="search-results" id="searchResults"></div>
+      </div>
+    </div>
+
+    <!-- Map container -->
+    <div id="map" aria-label="Interactive map for drawing paths"></div>
+
+    <!-- Control buttons -->
+    <div class="controls">
+      <button id="locate" aria-label="Find my location">
+        📍 My Location
+      </button>
+      <button id="draw" aria-label="Toggle drawing mode">
+        ✏️ Draw Path
+      </button>
+      <button id="edit" aria-label="Toggle edit mode">
+        ✂️ Edit Path
+      </button>
+      <button id="save" aria-label="Save current path">
+        💾 Save Path
+      </button>
+      <button id="clear" aria-label="Clear current path">
+        🗑️ Clear
+      </button>
+    </div>
+
+    <!-- Information panel -->
+    <div class="info">
+      <div class="info-row">
+        Distance: <span id="distance">0.00</span> km
+      </div>
+      <div class="info-row">
+        Est. Time: <span id="time">0</span> min
+      </div>
+      <div class="info-row">
+        Points: <span id="points">0</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Save modal -->
+  <div class="overlay" id="overlay"></div>
+  <div class="save-modal" id="saveModal" aria-labelledby="modalTitle">
+    <h2 class="modal-title" id="modalTitle">Save Path</h2>
+    <input type="text" id="pathName" class="modal-input" placeholder="Enter path name" aria-label="Path name">
+    <div class="modal-buttons">
+      <button id="cancelSave">Cancel</button>
+      <button id="confirmSave">Save</button>
+    </div>
+  </div>
+
+  <!-- Saved paths list - Initially hidden -->
+  <div class="saved-paths" id="savedPaths" style="display: none;">
+    <h3>Saved Paths</h3>
+    <div id="pathsList"></div>
+  </div>
+
+  <!-- Scripts -->
+  <!-- Leaflet JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+
+  <!-- Custom JS -->
+  <script src="script.js"></script>
+
+  <!-- Error handling -->
+  <script>
+    window.addEventListener('error', function (e) {
+      console.error('Global error:', e.message);
+    });
+  </script>
+</body>
+
+</html>
